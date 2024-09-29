@@ -1,48 +1,41 @@
 name: Deploy static content to Pages
 
 on:
-  # Runs on pushes targeting the default branch
-  push:
-    branches: ['main'] # Change this to your default branch if it's not 'main'
-  # Allows you to run this workflow manually from the Actions tab
-  workflow_dispatch:
+  workflow_run:
+    workflows: ["Run Tests"] # This should match the name of your test workflow
+    types:
+      - completed # This specifies that this workflow should run after the "Run Tests" workflow completes
 
-# Sets the GITHUB_TOKEN permissions to allow deployment to GitHub Pages
 permissions:
-  contents: read
-  pages: write
-  id-token: write
+  contents: read # Allows the workflow to read repository content
+  pages: write    # Allows the workflow to write to GitHub Pages
+  id-token: write # Allows the workflow to use the ID token for authentication
 
-# Allow one concurrent deployment
 concurrency:
-  group: 'pages'
-  cancel-in-progress: true
+  group: 'pages'            # Group name for concurrency control
+  cancel-in-progress: true   # Cancel any in-progress runs in the group if a new run is triggered
 
 jobs:
   deploy:
-    environment:
-      name: github-pages
-      url: ${{ steps.deployment.outputs.page_url }}
-    runs-on: ubuntu-latest
+    if: ${{ github.event.workflow_run.conclusion == 'success' }} # Only run if tests succeeded
+    runs-on: ubuntu-latest # The job will run on the latest Ubuntu environment
     steps:
       - name: Checkout
-        uses: actions/checkout@v4
+        uses: actions/checkout@v4 # Checks out your repository under $GITHUB_WORKSPACE, so your workflow can access it
       - name: Set up Node
-        uses: actions/setup-node@v4
+        uses: actions/setup-node@v4 # Sets up the Node.js environment
         with:
-          node-version: '20' # Specify your preferred Node.js version
-          cache: 'npm'
+          node-version: 20 # Specifies the Node.js version to use
       - name: Install dependencies
-        run: npm ci # Install dependencies
+        run: npm ci # Installs dependencies based on the package-lock.json file
       - name: Build
-        run: npm run build # Build the project
+        run: npm run build # Builds the project using the build script defined in package.json
       - name: Setup Pages
-        uses: actions/configure-pages@v4
+        uses: actions/configure-pages@v4 # Configures the GitHub Pages for deployment
       - name: Upload artifact
-        uses: actions/upload-pages-artifact@v3
+        uses: actions/upload-pages-artifact@v3 # Uploads the built artifacts to GitHub Pages
         with:
-          # Upload the dist folder
-          path: './dist'
+          path: './dist' # Specifies the path to the built files to be deployed
       - name: Deploy to GitHub Pages
         id: deployment
-        uses: actions/deploy-pages@v4
+        uses: actions/deploy-pages@v4 # Deploys the uploaded artifacts to GitHub Pages
