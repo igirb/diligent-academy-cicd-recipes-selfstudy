@@ -2,40 +2,40 @@ name: Deploy static content to Pages
 
 on:
   workflow_run:
-    workflows: ["Run Tests"] # This should match the name of your test workflow
+    workflows: ["Run Tests"]
     types:
-      - completed # This specifies that this workflow should run after the "Run Tests" workflow completes
+      - completed
 
 permissions:
-  contents: read # Allows the workflow to read repository content
-  pages: write    # Allows the workflow to write to GitHub Pages
-  id-token: write # Allows the workflow to use the ID token for authentication
+  contents: read
+  pages: write
+  id-token: write
 
 concurrency:
-  group: 'pages'            # Group name for concurrency control
-  cancel-in-progress: true   # Cancel any in-progress runs in the group if a new run is triggered
+  group: 'pages'
+  cancel-in-progress: true
 
 jobs:
   deploy:
-    if: ${{ github.event.workflow_run.conclusion == 'success' }} # Only run if tests succeeded
-    runs-on: ubuntu-latest # The job will run on the latest Ubuntu environment
+    if: ${{ github.event.workflow_run.conclusion == 'success' }}
+    runs-on: ubuntu-latest
     steps:
       - name: Checkout
-        uses: actions/checkout@v4 # Checks out your repository under $GITHUB_WORKSPACE, so your workflow can access it
+        uses: actions/checkout@v4
       - name: Set up Node
-        uses: actions/setup-node@v4 # Sets up the Node.js environment
+        uses: actions/setup-node@v4
         with:
-          node-version: 20 # Specifies the Node.js version to use
+          node-version: 20
       - name: Install dependencies
-        run: npm ci # Installs dependencies based on the package-lock.json file
+        run: npm ci
       - name: Build
-        run: npm run build # Builds the project using the build script defined in package.json
+        run: npm run build
       - name: Setup Pages
-        uses: actions/configure-pages@v4 # Configures the GitHub Pages for deployment
+        uses: actions/configure-pages@v4
       - name: Upload artifact
-        uses: actions/upload-pages-artifact@v3 # Uploads the built artifacts to GitHub Pages
+        uses: actions/upload-pages-artifact@v3
         with:
-          path: './dist' # Specifies the path to the built files to be deployed
+          path: './dist'
       - name: Deploy to GitHub Pages
         id: deployment
-        uses: actions/deploy-pages@v4 # Deploys the uploaded artifacts to GitHub Pages
+        uses: actions/deploy-pages@v4
