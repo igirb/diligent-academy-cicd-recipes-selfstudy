@@ -24,11 +24,10 @@ function element(tag, attributes = {}, children = []) {
 }
 
 function createContainer({onShow}) {
-    const container = element('div', {class: 'container'}, [
-        element('h1', {}, ['My Recipes']),
-        element('button', {class: 'btn btn-primary', onClick: onShow}, ['Show Recipes']),
-        element('div', {id: 'recipeList'}),
-    ])
+    const container = element('div', {class: 'container'}, [element('h1', {}, ['My Recipes']), element('button', {
+        class: 'btn btn-primary',
+        onClick: onShow
+    }, ['Show Recipes']), element('div', {id: 'recipeList'}),])
     return container;
 }
 
@@ -43,16 +42,13 @@ export function setupApp(root) {
         if (isVisible) {
             list.innerHTML = '';
 
+            // Add "Recipe List" text
+            list.appendChild(element('p', {}, ['Recipe List']));
+
             const recipes = getRecipes();
 
             recipes.forEach((recipe) => {
-                const card = element('div', {class: 'col-sm-4'}, [
-                    element('div', {class: 'card mb-3'}, [
-                        element('div', {class: 'card-body'}, [
-                            element('h5', {class: 'card-title'}, [recipe.name])
-                        ])
-                    ])
-                ]);
+                const card = element('div', {class: 'col-sm-4'}, [element('div', {class: 'card mb-3'}, [element('div', {class: 'card-body'}, [element('h5', {class: 'card-title'}, [recipe.name])])])]);
                 list.appendChild(card);
             });
         } else {
